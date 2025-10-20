@@ -29,9 +29,7 @@
     padding: 0.5rem;
     border-radius: 0.3rem;
   }
-  .board td {
-    padding: 0.5rem;
-  }
+  .board td { padding: 0.5rem; }
   .cell {
     display: inline-block;
     background: #10b981;
@@ -151,44 +149,39 @@ let riwayat = JSON.parse(localStorage.getItem('adil-riwayat')) || { A:[], D:[], 
 const boardsContainer = document.getElementById('boards-container');
 const riwayatDiv = document.getElementById('riwayat');
 
-// 🔢 Fungsi buat papan dengan duplikat tapi tak di kolom huruf sama
+// 🔢 Buat papan acak tanpa duplikat di kolom huruf sama
 function generateBoard(num) {
   const baseNums = Array.from({ length: 50 }, (_, i) => i + 1);
-  const selected = [];
-  while (selected.length < 12) {
-    const n = baseNums.splice(Math.floor(Math.random() * baseNums.length), 1)[0];
-    selected.push(n);
+  const chosen = [];
+  while (chosen.length < 12) {
+    chosen.push(baseNums.splice(Math.floor(Math.random() * baseNums.length), 1)[0]);
   }
   const duplicateCount = Math.floor(Math.random() * 3) + 2;
   const duplicates = [];
   for (let i = 0; i < duplicateCount; i++) {
-    const dup = selected[Math.floor(Math.random() * selected.length)];
-    duplicates.push(dup);
+    duplicates.push(chosen[Math.floor(Math.random() * chosen.length)]);
   }
-  const allNums = [...selected, ...duplicates];
+  const allNums = [...chosen, ...duplicates];
 
-  // posisikan 4x4 tanpa duplikat di kolom sama
   const grid = Array(4).fill(null).map(() => Array(4).fill(null));
   const positions = [];
   for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) positions.push([r,c]);
   const shuffled = positions.sort(() => Math.random() - 0.5);
 
   for (let n of allNums) {
-    let placedOK = false;
-    for (let pos of shuffled) {
-      const [r, c] = pos;
+    let placed = false;
+    for (let [r,c] of shuffled) {
       if (!grid[r][c]) {
-        const sameColNums = grid.map(row => row[c]).filter(x => x !== null);
-        if (!sameColNums.includes(n)) {
+        const sameCol = grid.map(row => row[c]).filter(x => x !== null);
+        if (!sameCol.includes(n)) {
           grid[r][c] = n;
-          placedOK = true;
+          placed = true;
           break;
         }
       }
     }
-    if (!placedOK) {
-      for (let pos of shuffled) {
-        const [r, c] = pos;
+    if (!placed) {
+      for (let [r,c] of shuffled) {
         if (!grid[r][c]) {
           grid[r][c] = n;
           break;
@@ -199,6 +192,7 @@ function generateBoard(num) {
   boards[num] = grid.flat();
 }
 
+// Buat semua papan 1–10
 function initBoards() {
   boards = {};
   for (let i = 1; i <= 10; i++) generateBoard(i);
@@ -232,6 +226,7 @@ function renderRiwayat() {
 function renderBoards() {
   boardsContainer.innerHTML = '';
   for (let n = 1; n <= jumlahPapan; n++) {
+    if (!boards[n]) generateBoard(n);
     const wrap = document.createElement('div');
     wrap.className = 'board';
     const title = document.createElement('div');
@@ -304,7 +299,7 @@ document.getElementById('jumlah-papan').onchange = e => {
   renderBoards();
 };
 
-// ✅ Tombol GANTI SEMUA PAPAN berfungsi penuh
+// ✅ Tombol GANTI SEMUA PAPAN berfungsi penuh & semua papan muncul
 document.getElementById('btnGanti').onclick = () => {
   checkedCells = {};
   saveChecked();
