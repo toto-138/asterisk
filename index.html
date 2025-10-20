@@ -139,6 +139,19 @@
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
   }
+
+  #riwayat {
+    text-align: left;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #aafff4;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    white-space: pre-wrap;
+    border-top: 1px solid rgba(0,255,204,0.2);
+    padding-top: 0.5rem;
+  }
 </style>
 </head>
 <body class="flex flex-col items-center p-4">
@@ -172,10 +185,10 @@
   </select>
   <button id="btnGanti" class="btn w-full mb-2">🎲 GANTI SEMUA PAPAN</button>
   <button id="btnReset" class="btn w-full mb-2">♻️ RESET CENTANG</button>
-  <label class="inline-flex items-center space-x-2 text-emerald-100">
-    <input id="autoCheck" type="checkbox" class="form-checkbox text-emerald-400">
-    <span>Centang Otomatis</span>
-  </label>
+
+  <div class="mt-2 text-left text-emerald-100 font-semibold">📜 Riwayat Angka Keluar</div>
+  <div id="riwayat"></div>
+
   <button id="btnTutup" class="btn w-full mt-3">❌ Tutup</button>
 </div>
 
@@ -188,6 +201,7 @@ const boardsContainer = document.getElementById('boards-container');
 const btnOpsi = document.getElementById('btnOpsi');
 const panel = document.getElementById('options-panel');
 const btnTutup = document.getElementById('btnTutup');
+const riwayatDiv = document.getElementById('riwayat');
 
 btnOpsi.addEventListener('click', () => panel.style.display = 'block');
 btnTutup.addEventListener('click', () => panel.style.display = 'none');
@@ -195,33 +209,25 @@ btnTutup.addEventListener('click', () => panel.style.display = 'none');
 let boards = JSON.parse(localStorage.getItem('adil-boards')) || {};
 let jumlahPapan = Number(localStorage.getItem('adil-jumlah')) || 1;
 let checkedCells = JSON.parse(localStorage.getItem('adil-checked')) || {};
+let riwayat = JSON.parse(localStorage.getItem('adil-riwayat')) || { A:[], D:[], I:[], L:[] };
 
-// 🔢 Fungsi baru: membuat papan acak dengan kemungkinan angka ganda
+// 🔢 buat papan acak dengan angka ganda acak
 function generateBoard(num) {
   const boardNums = [];
   const baseNums = Array.from({length: 50}, (_, i) => i + 1);
-
-  // Tentukan berapa banyak angka yang akan digandakan (misal 2–4 angka)
   const duplicateCount = Math.floor(Math.random() * 3) + 2;
-
-  // Pilih angka-angka unik dulu
   while (boardNums.length < 16 - duplicateCount) {
     const rand = baseNums[Math.floor(Math.random() * baseNums.length)];
     if (!boardNums.includes(rand)) boardNums.push(rand);
   }
-
-  // Pilih angka acak dari yang sudah ada untuk digandakan
   for (let i = 0; i < duplicateCount; i++) {
     const duplicate = boardNums[Math.floor(Math.random() * boardNums.length)];
     boardNums.push(duplicate);
   }
-
-  // Acak posisi semua angka
   for (let i = boardNums.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [boardNums[i], boardNums[j]] = [boardNums[j], boardNums[i]];
   }
-
   boards[num] = boardNums;
 }
 
@@ -234,6 +240,24 @@ if (Object.keys(boards).length < 10) {
 
 function saveChecked() {
   localStorage.setItem('adil-checked', JSON.stringify(checkedCells));
+}
+
+function saveRiwayat() {
+  localStorage.setItem('adil-riwayat', JSON.stringify(riwayat));
+  renderRiwayat();
+}
+
+function renderRiwayat() {
+  const lines = [];
+  const maxLen = Math.max(riwayat.A.length, riwayat.D.length, riwayat.I.length, riwayat.L.length);
+  for (let i = 0; i < maxLen; i++) {
+    const a = riwayat.A[i] ? `A:${riwayat.A[i]}`.padEnd(6) : "      ";
+    const d = riwayat.D[i] ? `D:${riwayat.D[i]}`.padEnd(6) : "      ";
+    const iN = riwayat.I[i] ? `I:${riwayat.I[i]}`.padEnd(6) : "      ";
+    const l = riwayat.L[i] ? `L:${riwayat.L[i]}` : "";
+    lines.push(`${a}  ${d}  ${iN}  ${l}`);
+  }
+  riwayatDiv.textContent = lines.join("\n") || "(belum ada angka keluar)";
 }
 
 function renderBoards() {
@@ -309,6 +333,12 @@ function updateLatestNumber(huruf, angka) {
   dingSound.currentTime = 0;
   dingSound.play();
   setTimeout(() => el.classList.remove('pop'), 500);
+
+  // simpan riwayat
+  if (riwayat[huruf]) {
+    riwayat[huruf].push(String(angka).padStart(2,'0'));
+    saveRiwayat();
+  }
 }
 
 window.addEventListener('storage', e => {
@@ -320,6 +350,7 @@ window.addEventListener('storage', e => {
 });
 
 renderBoards();
+renderRiwayat();
 </script>
 </body>
   </html>
