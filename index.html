@@ -130,7 +130,7 @@ body {
   .boards-container { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 }
 
-/* Riwayat angka */
+/* Riwayat */
 #riwayat {
   margin-top: 0.8rem;
   text-align: left;
@@ -141,6 +141,7 @@ body {
   max-height: 180px;
   overflow-y: auto;
   white-space: pre;
+  line-height: 1.4em;
 }
 </style>
 </head>
@@ -192,12 +193,9 @@ body {
 <script>
 const dingSound = new Audio('./sounds/ding.mp3');
 dingSound.volume = 0.5;
-
 const HEADER = ['𝗔','𝗗','𝗜','𝗟'];
 const boardsContainer = document.getElementById('boards-container');
 const panel = document.getElementById('options-panel');
-const btnOpsi = document.getElementById('btnOpsi');
-const btnTutup = document.getElementById('btnTutup');
 const riwayatDiv = document.getElementById('riwayat');
 
 let boards = JSON.parse(localStorage.getItem('adil-boards')) || {};
@@ -205,8 +203,8 @@ let jumlahPapan = Number(localStorage.getItem('adil-jumlah')) || 1;
 let checkedCells = JSON.parse(localStorage.getItem('adil-checked')) || {};
 let riwayat = JSON.parse(localStorage.getItem('adil-riwayat')) || {A:[],D:[],I:[],L:[]};
 
-btnOpsi.onclick = () => panel.style.display = 'block';
-btnTutup.onclick = () => panel.style.display = 'none';
+document.getElementById('btnOpsi').onclick = () => panel.style.display = 'block';
+document.getElementById('btnTutup').onclick = () => panel.style.display = 'none';
 
 function generateBoard(num) {
   const nums = Array.from({length: 50}, (_, i) => i + 1);
@@ -215,18 +213,18 @@ function generateBoard(num) {
     const idx = Math.floor(Math.random() * nums.length);
     boardNums.push(nums.splice(idx, 1)[0]);
   }
-  // duplikasi 2 angka acak di huruf berbeda
+  // duplikasi acak
   const dupIndices = [];
   while (dupIndices.length < 2) {
     const r = Math.floor(Math.random() * 16);
     if (!dupIndices.includes(r)) dupIndices.push(r);
   }
   const dupNums = dupIndices.map(i => boardNums[i]);
-  dupNums.forEach(num => {
+  dupNums.forEach(numVal => {
     let idx;
     do { idx = Math.floor(Math.random() * 16); }
-    while (Math.floor(idx/4) === Math.floor(dupIndices[0]/4)); // pastikan kolom berbeda
-    boardNums[idx] = num;
+    while (Math.floor(idx/4) === Math.floor(dupIndices[0]/4));
+    boardNums[idx] = numVal;
   });
   boards[num] = boardNums;
 }
@@ -286,16 +284,16 @@ function renderBoards() {
 }
 
 function updateRiwayat() {
-  const maxLen = Math.max(riwayat.A.length, riwayat.D.length, riwayat.I.length, riwayat.L.length);
-  let text = 'A     D     I     L\n';
-  for (let i=0;i<maxLen;i++) {
-    const a = riwayat.A[i] ? String(riwayat.A[i]).padStart(2,'0') : ' ';
-    const d = riwayat.D[i] ? String(riwayat.D[i]).padStart(2,'0') : ' ';
-    const iH = riwayat.I[i] ? String(riwayat.I[i]).padStart(2,'0') : ' ';
-    const l = riwayat.L[i] ? String(riwayat.L[i]).padStart(2,'0') : ' ';
-    text += `${a.padEnd(5)}${d.padEnd(5)}${iH.padEnd(5)}${l}\n`;
+  const max = Math.max(riwayat.A.length, riwayat.D.length, riwayat.I.length, riwayat.L.length);
+  let out = `A     D     I     L\n`;
+  for (let i = 0; i < max; i++) {
+    const a = riwayat.A[i] ? String(riwayat.A[i]).padStart(2,'0') : '  ';
+    const d = riwayat.D[i] ? String(riwayat.D[i]).padStart(2,'0') : '  ';
+    const iH = riwayat.I[i] ? String(riwayat.I[i]).padStart(2,'0') : '  ';
+    const l = riwayat.L[i] ? String(riwayat.L[i]).padStart(2,'0') : '  ';
+    out += `${a.padEnd(6)}${d.padEnd(6)}${iH.padEnd(6)}${l}\n`;
   }
-  riwayatDiv.textContent = text;
+  riwayatDiv.textContent = out.trimEnd();
 }
 
 function updateLatestNumber(huruf, angka) {
@@ -305,7 +303,6 @@ function updateLatestNumber(huruf, angka) {
   dingSound.currentTime = 0;
   dingSound.play();
   setTimeout(() => el.classList.remove('pop'), 500);
-
   if (huruf && !isNaN(angka)) {
     riwayat[huruf].unshift(angka);
     localStorage.setItem('adil-riwayat', JSON.stringify(riwayat));
@@ -326,22 +323,14 @@ document.getElementById('jumlah-papan').onchange = e => {
   localStorage.setItem('adil-jumlah', jumlahPapan);
   renderBoards();
 };
-
 document.getElementById('btnGanti').onclick = () => {
-  boards = {};
-  for (let i = 1; i <= 10; i++) generateBoard(i);
-  checkedCells = {};
-  localStorage.setItem('adil-boards', JSON.stringify(boards));
-  saveChecked();
-  renderBoards();
+  boards = {}; for (let i = 1; i <= 10; i++) generateBoard(i);
+  checkedCells = {}; localStorage.setItem('adil-boards', JSON.stringify(boards));
+  saveChecked(); renderBoards();
 };
-
 document.getElementById('btnReset').onclick = () => {
-  checkedCells = {};
-  saveChecked();
-  renderBoards();
+  checkedCells = {}; saveChecked(); renderBoards();
 };
-
 document.getElementById('btnResetRiwayat').onclick = () => {
   riwayat = {A:[],D:[],I:[],L:[]};
   localStorage.setItem('adil-riwayat', JSON.stringify(riwayat));
@@ -352,4 +341,4 @@ renderBoards();
 updateRiwayat();
 </script>
 </body>
-  </html>
+</html>
