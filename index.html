@@ -1,321 +1,301 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pemain | Permainan ADIL</title>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
-<style>
-  body {
-    background: radial-gradient(circle at center, #064e3b, #022c22);
-    color: white;
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-  }
-  .board {
-    background: rgba(4, 120, 87, 0.35);
-    padding: 0.8rem;
-    border-radius: 1rem;
-    transition: transform 0.3s ease;
-  }
-  .board table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-  }
-  .board th {
-    background: #065f46;
-    color: #d1fae5;
-    padding: 0.5rem;
-    border-radius: 0.3rem;
-  }
-  .board td { padding: 0.5rem; }
-  .cell {
-    display: inline-block;
-    background: #10b981;
-    border-radius: 0.5rem;
-    font-weight: 700;
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-  }
-  .cell:hover { transform: scale(1.05); }
-  .cell.checked {
-    background: #0a1950;
-    color: #a3c4ff;
-    box-shadow: inset 0 0 8px #1e3a8a;
-  }
-  #latest-number {
-    font-size: 4rem;
-    font-weight: 800;
-    margin: 1rem 0;
-    color: #6ee7b7;
-    text-shadow: 0 0 20px rgba(16,185,129,0.7);
-  }
-  #latest-number.pop {
-    transform: scale(1.2);
-    text-shadow: 0 0 40px rgba(16,185,129,1);
-  }
-  .btn {
-    background: #10b981;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    color: #fff;
-    transition: all 0.2s;
-  }
-  .btn:hover { background: #34d399; transform: scale(1.05); }
+<!DOCTYPE html>  <html lang="id">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>Pemain | Permainan ADIL</title>  
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">  
+<style>  
+  /* 🌿 Tema hijau tua seperti semula */  
+  body {  
+    background: radial-gradient(circle at center, #064e3b, #022c22);  
+    color: white;  
+    font-family: 'Poppins', sans-serif;  
+    min-height: 100vh;  
+  }  
+  .board {  
+    background: rgba(4, 120, 87, 0.35);  
+    padding: 0.8rem;  
+    border-radius: 1rem;  
+    transition: transform 0.3s ease;  
+  }  
+  .board table {  
+    width: 100%;  
+    border-collapse: collapse;  
+    text-align: center;  
+  }  
+  .board th {  
+    background: #065f46;  
+    color: #d1fae5;  
+    padding: 0.5rem;  
+    border-radius: 0.3rem;  
+  }  
+  .board td {  
+    padding: 0.5rem;  
+  }  
+  .cell {  
+    display: inline-block;  
+    background: #10b981;  
+    border-radius: 0.5rem;  
+    font-weight: 700;  
+    width: 50px;  
+    height: 50px;  
+    line-height: 50px;  
+    cursor: pointer;  
+    transition: all 0.25s ease;  
+  }  
+  .cell:hover { transform: scale(1.05); }  
+  .cell.checked {  
+    background: #0a1950;           /* biru tua */  
+    color: #a3c4ff;                /* teks biru muda */  
+    box-shadow: inset 0 0 8px #1e3a8a;  
+  }  
+  #latest-number {  
+    font-size: 4rem;  
+    font-weight: 800;  
+    margin: 1rem 0;  
+    color: #6ee7b7;  
+    text-shadow: 0 0 20px rgba(16,185,129,0.7);  
+  }  
+  #latest-number.pop {  
+    transform: scale(1.2);  
+    text-shadow: 0 0 40px rgba(16,185,129,1);  
+  }  
+  .btn {  
+    background: #10b981;  
+    padding: 0.5rem 1rem;  
+    border-radius: 0.5rem;  
+    font-weight: 600;  
+    color: #fff;  
+    transition: all 0.2s;  
+  }  
+  .btn:hover { background: #34d399; transform: scale(1.05); }  /* 💎 PANEL OPSI futuristik emerald-biru neon */
+#options-panel {
+position: absolute;
+top: 90px;
+right: 20px;
+width: 18rem;
+backdrop-filter: blur(14px);
+background: rgba(0,255,204,0.1);
+border: 1px solid rgba(0,255,204,0.25);
+border-radius: 1rem;
+padding: 1rem;
+display: none;
+animation: slideDown 0.4s ease;
+box-shadow: 0 0 25px rgba(0,255,204,0.3);
+z-index: 100;
+}
+@keyframes slideDown {
+from { transform: translateY(-20px); opacity: 0; }
+to { transform: translateY(0); opacity: 1; }
+}
 
-  #options-panel {
-    position: absolute;
-    top: 90px;
-    right: 20px;
-    width: 18rem;
-    backdrop-filter: blur(14px);
-    background: rgba(0,255,204,0.1);
-    border: 1px solid rgba(0,255,204,0.25);
-    border-radius: 1rem;
-    padding: 1rem;
-    display: none;
-    animation: slideDown 0.4s ease;
-    box-shadow: 0 0 25px rgba(0,255,204,0.3);
-    z-index: 100;
-  }
-  @keyframes slideDown {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  #riwayat {
-    text-align: left;
-    font-family: monospace;
-    font-size: 0.9rem;
-    color: #aafff4;
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 0.5rem;
-    white-space: pre-wrap;
-    border-top: 1px solid rgba(0,255,204,0.2);
-    padding-top: 0.5rem;
-  }
+#options-panel select {
+background: rgba(0,255,204,0.15);
+border: 1px solid rgba(0,255,204,0.3);
+color: #aafff4;
+border-radius: 0.5rem;
+padding: 0.5rem;
+font-weight: 600;
+width: 100%;
+transition: all 0.3s ease;
+}
+#options-panel select:focus {
+outline: none;
+box-shadow: 0 0 10px #00ffa3;
+}
+#options-panel .btn {
+background: linear-gradient(135deg, #00ffa3, #00e0ff);
+color: #001f17;
+box-shadow: 0 0 20px rgba(0,255,204,0.4);
+transition: all 0.3s ease;
+}
+#options-panel .btn:hover {
+transform: scale(1.07);
+box-shadow: 0 0 30px rgba(0,255,204,0.8);
+}
+#btnTutup {
+margin-top: 0.5rem;
+background: rgba(255, 50, 50, 0.2);
+color: #ffbaba;
+border: 1px solid rgba(255, 50, 50, 0.4);
+box-shadow: 0 0 12px rgba(255, 80, 80, 0.5);
+}
+#btnTutup:hover {
+background: rgba(255, 70, 70, 0.4);
+transform: scale(1.05);
+}
+
+.boards-container {
+display: grid;
+gap: 1.5rem;
+justify-content: center;
+align-items: start;
+margin-top: 1rem;
+}
+@media (min-width: 768px) {
+.boards-container {
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+}
 </style>
-</head>
-<body class="flex flex-col items-center p-4">
 
-<header class="w-full flex justify-between items-center mb-4">
-  <h1 class="text-xl font-bold text-emerald-300">🎯 Permainan ADIL — Pemain</h1>
-  <button id="btnOpsi" class="btn">⚙️ Opsi</button>
-</header>
+</head>  <body class="flex flex-col items-center p-4">  
+  <header class="w-full flex justify-between items-center mb-4">  
+    <h1 class="text-xl font-bold text-emerald-300">🎯 Permainan ADIL — Pemain</h1>  
+    <button id="btnOpsi" class="btn">⚙️ Opsi</button>  
+  </header>    <div class="text-center">  
+    <div class="text-emerald-200 text-sm">Angka Terbaru:</div>  
+    <div id="latest-number">--</div>  
+  </div>    <div id="boards-container" class="boards-container w-full max-w-7xl"></div>    <!-- 💎 Panel opsi futuristik -->    <div id="options-panel" class="text-center">  
+    <label for="jumlah-papan" class="block text-emerald-100 mb-1">Tampilkan Berapa Papan:</label>  
+    <select id="jumlah-papan" class="w-full mb-2">  
+      <option value="1">1 papan</option>  
+      <option value="2">2 papan</option>  
+      <option value="3">3 papan</option>  
+      <option value="4">4 papan</option>  
+      <option value="5">5 papan</option>  
+      <option value="6">6 papan</option>  
+      <option value="7">7 papan</option>  
+      <option value="8">8 papan</option>  
+      <option value="9">9 papan</option>  
+      <option value="10">10 papan</option>  
+    </select>  <button id="btnGanti" class="btn w-full mb-2">🎲 GANTI SEMUA PAPAN</button>  
+<button id="btnReset" class="btn w-full mb-2">♻️ RESET CENTANG</button>  
 
-<div class="text-center">
-  <div class="text-emerald-200 text-sm">Angka Terbaru:</div>
-  <div id="latest-number">--</div>
-</div>
+<label class="inline-flex items-center space-x-2 text-emerald-100">  
+  <input id="autoCheck" type="checkbox" class="form-checkbox text-emerald-400">  
+  <span>Centang Otomatis</span>  
+</label>  
 
-<div id="boards-container" class="grid gap-4 w-full max-w-6xl justify-center"></div>
+<button id="btnTutup" class="btn w-full mt-3">❌ Tutup</button>
 
-<div id="options-panel" class="text-center">
-  <label for="jumlah-papan" class="block text-emerald-100 mb-1">Tampilkan Berapa Papan:</label>
-  <select id="jumlah-papan" class="w-full mb-2">
-    <option value="1">1 papan</option>
-    <option value="2">2 papan</option>
-    <option value="3">3 papan</option>
-    <option value="4">4 papan</option>
-    <option value="5">5 papan</option>
-    <option value="6">6 papan</option>
-    <option value="7">7 papan</option>
-    <option value="8">8 papan</option>
-    <option value="9">9 papan</option>
-    <option value="10">10 papan</option>
-  </select>
-  <button id="btnGanti" class="btn w-full mb-2">🎲 GANTI SEMUA PAPAN</button>
-  <button id="btnReset" class="btn w-full mb-2">♻️ RESET CENTANG</button>
-  <div class="mt-2 text-left text-emerald-100 font-semibold">📜 Riwayat Angka Keluar</div>
-  <div id="riwayat"></div>
-  <button id="btnTutup" class="btn w-full mt-3 bg-red-600 hover:bg-red-700">❌ Tutup</button>
-</div>
-
-<script>
-const dingSound = new Audio('./sounds/ding.mp3');
-dingSound.volume = 0.5;
-const HEADER = ['A','D','I','L'];
-
-let boards = JSON.parse(localStorage.getItem('adil-boards')) || {};
-let jumlahPapan = Number(localStorage.getItem('adil-jumlah')) || 1;
-let checkedCells = JSON.parse(localStorage.getItem('adil-checked')) || {};
-let riwayat = JSON.parse(localStorage.getItem('adil-riwayat')) || { A:[], D:[], I:[], L:[] };
-
-const boardsContainer = document.getElementById('boards-container');
-const riwayatDiv = document.getElementById('riwayat');
-
-// 🔢 Buat papan acak tanpa duplikat di kolom huruf sama
-function generateBoard(num) {
-  const baseNums = Array.from({ length: 50 }, (_, i) => i + 1);
-  const chosen = [];
-  while (chosen.length < 12) {
-    chosen.push(baseNums.splice(Math.floor(Math.random() * baseNums.length), 1)[0]);
-  }
-  const duplicateCount = Math.floor(Math.random() * 3) + 2;
-  const duplicates = [];
-  for (let i = 0; i < duplicateCount; i++) {
-    duplicates.push(chosen[Math.floor(Math.random() * chosen.length)]);
-  }
-  const allNums = [...chosen, ...duplicates];
-
-  const grid = Array(4).fill(null).map(() => Array(4).fill(null));
-  const positions = [];
-  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) positions.push([r,c]);
-  const shuffled = positions.sort(() => Math.random() - 0.5);
-
-  for (let n of allNums) {
-    let placed = false;
-    for (let [r,c] of shuffled) {
-      if (!grid[r][c]) {
-        const sameCol = grid.map(row => row[c]).filter(x => x !== null);
-        if (!sameCol.includes(n)) {
-          grid[r][c] = n;
-          placed = true;
-          break;
-        }
-      }
-    }
-    if (!placed) {
-      for (let [r,c] of shuffled) {
-        if (!grid[r][c]) {
-          grid[r][c] = n;
-          break;
-        }
-      }
-    }
-  }
-  boards[num] = grid.flat();
-}
-
-// Buat semua papan 1–10
-function initBoards() {
-  boards = {};
-  for (let i = 1; i <= 10; i++) generateBoard(i);
-  localStorage.setItem('adil-boards', JSON.stringify(boards));
-}
-
-if (Object.keys(boards).length < 10) initBoards();
-
-function saveChecked() {
-  localStorage.setItem('adil-checked', JSON.stringify(checkedCells));
-}
-
-function saveRiwayat() {
-  localStorage.setItem('adil-riwayat', JSON.stringify(riwayat));
-  renderRiwayat();
-}
-
-function renderRiwayat() {
-  const lines = [];
-  const maxLen = Math.max(riwayat.A.length, riwayat.D.length, riwayat.I.length, riwayat.L.length);
-  for (let i = 0; i < maxLen; i++) {
-    const a = riwayat.A[i] ? `A:${riwayat.A[i]}`.padEnd(6) : "      ";
-    const d = riwayat.D[i] ? `D:${riwayat.D[i]}`.padEnd(6) : "      ";
-    const iN = riwayat.I[i] ? `I:${riwayat.I[i]}`.padEnd(6) : "      ";
-    const l = riwayat.L[i] ? `L:${riwayat.L[i]}` : "";
-    lines.push(`${a}  ${d}  ${iN}  ${l}`);
-  }
-  riwayatDiv.textContent = lines.join("\n") || "(belum ada angka keluar)";
-}
-
-function renderBoards() {
-  boardsContainer.innerHTML = '';
-  for (let n = 1; n <= jumlahPapan; n++) {
-    if (!boards[n]) generateBoard(n);
-    const wrap = document.createElement('div');
-    wrap.className = 'board';
-    const title = document.createElement('div');
-    title.textContent = `Papan #${n}`;
-    title.className = 'text-center text-emerald-200 font-semibold mb-1';
-    wrap.appendChild(title);
-
-    const table = document.createElement('table');
-    const trH = document.createElement('tr');
-    HEADER.forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      trH.appendChild(th);
-    });
-    table.appendChild(trH);
-
-    const nums = boards[n];
-    for (let r = 0; r < 4; r++) {
-      const tr = document.createElement('tr');
-      for (let c = 0; c < 4; c++) {
-        const num = nums[r*4+c];
-        const td = document.createElement('td');
-        const div = document.createElement('div');
-        div.className = 'cell';
-        div.textContent = num.toString().padStart(2,'0');
-        const key = `p${n}-${r}-${c}`;
-        if (checkedCells[key]) div.classList.add('checked');
-        div.onclick = () => {
-          div.classList.toggle('checked');
-          checkedCells[key] = div.classList.contains('checked');
-          saveChecked();
-        };
-        td.appendChild(div);
-        tr.appendChild(td);
-      }
-      table.appendChild(tr);
-    }
-    wrap.appendChild(table);
-    boardsContainer.appendChild(wrap);
-  }
-}
-
-function updateLatestNumber(huruf, angka) {
-  const el = document.getElementById('latest-number');
-  el.textContent = `${huruf}:${String(angka).padStart(2,'0')}`;
-  el.classList.add('pop');
-  dingSound.currentTime = 0;
-  dingSound.play();
-  setTimeout(()=>el.classList.remove('pop'),500);
-  if (riwayat[huruf]) {
-    riwayat[huruf].push(String(angka).padStart(2,'0'));
-    saveRiwayat();
-  }
-}
-
-window.addEventListener('storage', e => {
-  if (e.key === 'adil-last-huruf') {
-    const huruf = e.newValue;
-    const angka = Number(localStorage.getItem('adil-last'));
-    if (!isNaN(angka)) updateLatestNumber(huruf, angka);
-  }
-});
-
-document.getElementById('btnOpsi').onclick = () => document.getElementById('options-panel').style.display='block';
-document.getElementById('btnTutup').onclick = () => document.getElementById('options-panel').style.display='none';
-
-document.getElementById('jumlah-papan').onchange = e => {
-  jumlahPapan = Number(e.target.value);
-  localStorage.setItem('adil-jumlah', jumlahPapan);
-  renderBoards();
-};
-
-// ✅ Tombol GANTI SEMUA PAPAN berfungsi penuh & semua papan muncul
-document.getElementById('btnGanti').onclick = () => {
-  checkedCells = {};
-  saveChecked();
-  initBoards();
-  renderBoards();
-};
-
-// Reset centang
-document.getElementById('btnReset').onclick = () => {
-  checkedCells = {};
-  saveChecked();
-  renderBoards();
-};
-
-renderBoards();
-renderRiwayat();
-</script>
-</body>
-</html>
+  </div>    <script>  
+    const dingSound = new Audio('./sounds/ding.mp3');  
+    dingSound.volume = 0.5;  
+  
+    const HEADER = ['𝗔','𝗗','𝗜','𝗟'];  
+    const boardsContainer = document.getElementById('boards-container');  
+    const btnOpsi = document.getElementById('btnOpsi');  
+    const panel = document.getElementById('options-panel');  
+    const btnTutup = document.getElementById('btnTutup');  
+  
+    btnOpsi.addEventListener('click', () => {  
+      panel.style.display = 'block';  
+    });  
+  
+    btnTutup.addEventListener('click', () => {  
+      panel.style.display = 'none';  
+    });  
+  
+    // Data utama  
+    let boards = JSON.parse(localStorage.getItem('adil-boards')) || {};  
+    let jumlahPapan = Number(localStorage.getItem('adil-jumlah')) || 1;  
+    let checkedCells = JSON.parse(localStorage.getItem('adil-checked')) || {};  
+  
+    function generateBoard(num) {  
+      const nums = Array.from({length: 50}, (_, i) => i + 1);  
+      const boardNums = [];  
+      for (let i = 0; i < 16; i++) {  
+        const idx = Math.floor(Math.random() * nums.length);  
+        boardNums.push(nums.splice(idx, 1)[0]);  
+      }  
+      boards[num] = boardNums;  
+    }  
+  
+    if (Object.keys(boards).length < 10) {  
+      for (let i = 1; i <= 10; i++) {  
+        if (!boards[i]) generateBoard(i);  
+      }  
+      localStorage.setItem('adil-boards', JSON.stringify(boards));  
+    }  
+  
+    function saveChecked() {  
+      localStorage.setItem('adil-checked', JSON.stringify(checkedCells));  
+    }  
+  
+    function renderBoards() {  
+      boardsContainer.innerHTML = '';  
+      for (let n = 1; n <= jumlahPapan; n++) {  
+        const boardEl = document.createElement('div');  
+        boardEl.className = 'board';  
+        const title = document.createElement('div');  
+        title.className = 'text-center text-emerald-200 font-semibold mb-1';  
+        title.textContent = `Papan #${n}`;  
+        boardEl.appendChild(title);  
+  
+        const table = document.createElement('table');  
+        const headerRow = document.createElement('tr');  
+        HEADER.forEach(h => {  
+          const th = document.createElement('th');  
+          th.textContent = h;  
+          headerRow.appendChild(th);  
+        });  
+        table.appendChild(headerRow);  
+  
+        const nums = boards[n];  
+        for (let r = 0; r < 4; r++) {  
+          const tr = document.createElement('tr');  
+          for (let c = 0; c < 4; c++) {  
+            const num = nums[r*4 + c];  
+            const td = document.createElement('td');  
+            const cell = document.createElement('div');  
+            cell.className = 'cell';  
+            const key = `p${n}-${num}`;  
+            if (checkedCells[key]) cell.classList.add('checked');  
+            cell.textContent = num.toString().padStart(2, '0');  
+            cell.addEventListener('click', () => {  
+              cell.classList.toggle('checked');  
+              checkedCells[key] = cell.classList.contains('checked');  
+              saveChecked();  
+            });  
+            td.appendChild(cell);  
+            tr.appendChild(td);  
+          }  
+          table.appendChild(tr);  
+        }  
+        boardEl.appendChild(table);  
+        boardsContainer.appendChild(boardEl);  
+      }  
+    }  
+  
+    document.getElementById('jumlah-papan').addEventListener('change', e => {  
+      jumlahPapan = Number(e.target.value);  
+      localStorage.setItem('adil-jumlah', jumlahPapan);  
+      renderBoards();  
+    });  
+  
+    document.getElementById('btnGanti').addEventListener('click', () => {  
+      boards = {};  
+      for (let i = 1; i <= 10; i++) generateBoard(i);  
+      checkedCells = {};  
+      localStorage.setItem('adil-boards', JSON.stringify(boards));  
+      saveChecked();  
+      renderBoards();  
+    });  
+  
+    document.getElementById('btnReset').addEventListener('click', () => {  
+      checkedCells = {};  
+      saveChecked();  
+      renderBoards();  
+    });  
+  
+    function updateLatestNumber(huruf, angka) {  
+      const el = document.getElementById('latest-number');  
+      el.textContent = `${huruf}:${String(angka).padStart(2, '0')}`;  
+      el.classList.add('pop');  
+      dingSound.currentTime = 0;  
+      dingSound.play();  
+      setTimeout(() => el.classList.remove('pop'), 500);  
+    }  
+  
+    window.addEventListener('storage', e => {  
+      if (e.key === 'adil-last-huruf') {  
+        const huruf = e.newValue;  
+        const angka = Number(localStorage.getItem('adil-last'));  
+        if (!isNaN(angka)) updateLatestNumber(huruf, angka);  
+      }  
+    });  
+  
+    renderBoards();  
+  </script>  </body>  
+</html>  
