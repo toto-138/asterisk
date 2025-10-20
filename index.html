@@ -69,6 +69,7 @@ body {
   transition: all 0.2s;
 }
 .btn:hover { background: #34d399; transform: scale(1.05); }
+
 #options-panel {
   position: absolute;
   top: 90px;
@@ -88,6 +89,7 @@ body {
   from { transform: translateY(-20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
 #options-panel select {
   background: rgba(0,255,204,0.15);
   border: 1px solid rgba(0,255,204,0.3);
@@ -123,6 +125,7 @@ body {
   background: rgba(255, 70, 70, 0.4);
   transform: scale(1.05);
 }
+
 .boards-container {
   display: grid;
   gap: 1.5rem;
@@ -135,23 +138,20 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 }
-/* 📜 Riwayat angka keluar */
-.history-section {
-  margin-top: 1rem;
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem 0.6rem;
+  margin-top: 0.5rem;
   text-align: left;
+}
+.history-title {
+  font-weight: 700;
   color: #aafff4;
-  font-size: 0.85rem;
-  border-top: 1px solid rgba(0,255,204,0.3);
-  padding-top: 0.5rem;
 }
-.history-row {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-}
-.history-col {
-  flex: 1;
-  text-align: center;
+.history-value {
+  color: #c3fff9;
+  font-size: 0.9rem;
 }
 </style>
 </head>
@@ -192,22 +192,15 @@ body {
     <span>Centang Otomatis</span>
   </label>
 
-  <div class="history-section">
-    <div class="font-semibold text-emerald-300 mb-1">📜 Riwayat Angka Keluar</div>
-    <div id="history-container">
-      <div class="history-row">
-        <div class="history-col">A:</div>
-        <div class="history-col">D:</div>
-        <div class="history-col">I:</div>
-        <div class="history-col">L:</div>
-      </div>
-      <div class="history-row" id="history-values">
-        <div class="history-col" id="hist-A">--</div>
-        <div class="history-col" id="hist-D">--</div>
-        <div class="history-col" id="hist-I">--</div>
-        <div class="history-col" id="hist-L">--</div>
-      </div>
+  <div class="mt-3 border-t border-emerald-500/30 pt-2">
+    <div class="text-emerald-200 font-semibold text-sm mb-1">🧾 Riwayat Angka Keluar:</div>
+    <div class="history-grid">
+      <div class="history-title">A:</div><div class="history-value" id="hist-A">--</div>
+      <div class="history-title">D:</div><div class="history-value" id="hist-D">--</div>
+      <div class="history-title">I:</div><div class="history-value" id="hist-I">--</div>
+      <div class="history-title">L:</div><div class="history-value" id="hist-L">--</div>
     </div>
+    <button id="btnResetHistory" class="btn w-full mt-2">🧹 RESET RIWAYAT</button>
   </div>
 
   <button id="btnTutup" class="btn w-full mt-3">❌ Tutup</button>
@@ -222,6 +215,7 @@ const boardsContainer = document.getElementById('boards-container');
 const btnOpsi = document.getElementById('btnOpsi');
 const panel = document.getElementById('options-panel');
 const btnTutup = document.getElementById('btnTutup');
+const btnResetHistory = document.getElementById('btnResetHistory');
 const historyEls = {
   A: document.getElementById('hist-A'),
   D: document.getElementById('hist-D'),
@@ -229,10 +223,9 @@ const historyEls = {
   L: document.getElementById('hist-L'),
 };
 
-btnOpsi.addEventListener('click', () => { panel.style.display = 'block'; });
-btnTutup.addEventListener('click', () => { panel.style.display = 'none'; });
+btnOpsi.addEventListener('click', () => panel.style.display = 'block');
+btnTutup.addEventListener('click', () => panel.style.display = 'none');
 
-// data utama
 let boards = JSON.parse(localStorage.getItem('adil-boards')) || {};
 let jumlahPapan = Number(localStorage.getItem('adil-jumlah')) || 1;
 let checkedCells = JSON.parse(localStorage.getItem('adil-checked')) || {};
@@ -245,6 +238,12 @@ function updateHistoryDisplay() {
   }
 }
 
+btnResetHistory.addEventListener('click', () => {
+  history = {A:[], D:[], I:[], L:[]};
+  localStorage.setItem('adil-history', JSON.stringify(history));
+  updateHistoryDisplay();
+});
+
 function generateBoard(num) {
   const nums = Array.from({length: 50}, (_, i) => i + 1);
   const boardNums = [];
@@ -252,8 +251,6 @@ function generateBoard(num) {
     const idx = Math.floor(Math.random() * nums.length);
     boardNums.push(nums.splice(idx, 1)[0]);
   }
-
-  // 🎲 Tambahkan 2 angka duplikat di papan yang sama
   const dupIndexes = [];
   while (dupIndexes.length < 2) {
     const n = boardNums[Math.floor(Math.random() * boardNums.length)];
@@ -261,26 +258,20 @@ function generateBoard(num) {
   }
   const dupNumbers = [...dupIndexes];
   const newNums = [...boardNums];
-
-  // tempelkan duplikat ke kolom berbeda
   dupNumbers.forEach(numDup => {
     const col1 = Math.floor(Math.random() * 4);
     let col2;
     do { col2 = Math.floor(Math.random() * 4); } while (col2 === col1);
-    // posisi acak di baris yg berbeda
     const row1 = Math.floor(Math.random() * 4);
     const row2 = (row1 + Math.floor(Math.random() * 3) + 1) % 4;
     const idx2 = row2 * 4 + col2;
     newNums[idx2] = numDup;
   });
-
   boards[num] = newNums;
 }
 
 if (Object.keys(boards).length < 10) {
-  for (let i = 1; i <= 10; i++) {
-    if (!boards[i]) generateBoard(i);
-  }
+  for (let i = 1; i <= 10; i++) if (!boards[i]) generateBoard(i);
   localStorage.setItem('adil-boards', JSON.stringify(boards));
 }
 
@@ -361,8 +352,6 @@ function updateLatestNumber(huruf, angka) {
   dingSound.currentTime = 0;
   dingSound.play();
   setTimeout(() => el.classList.remove('pop'), 500);
-
-  // simpan ke riwayat
   if (history[huruf]) {
     history[huruf].push(String(angka).padStart(2, '0'));
     if (history[huruf].length > 10) history[huruf].shift();
@@ -370,6 +359,17 @@ function updateLatestNumber(huruf, angka) {
     updateHistoryDisplay();
   }
 }
+
+let lastHuruf = localStorage.getItem('adil-last-huruf');
+let lastAngka = localStorage.getItem('adil-last');
+setInterval(() => {
+  const h = localStorage.getItem('adil-last-huruf');
+  const a = localStorage.getItem('adil-last');
+  if (h && a && (h !== lastHuruf || a !== lastAngka)) {
+    lastHuruf = h; lastAngka = a;
+    updateLatestNumber(h, Number(a));
+  }
+}, 1000);
 
 window.addEventListener('storage', e => {
   if (e.key === 'adil-last-huruf') {
@@ -383,4 +383,4 @@ updateHistoryDisplay();
 renderBoards();
 </script>
 </body>
-  </html>
+</html>
