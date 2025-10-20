@@ -1,29 +1,325 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bingo Game</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pemain | Permainan ADIL</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+<style>
+  body {
+    background: radial-gradient(circle at center, #064e3b, #022c22);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+  }
+  .board {
+    background: rgba(4, 120, 87, 0.35);
+    padding: 0.8rem;
+    border-radius: 1rem;
+    transition: transform 0.3s ease;
+  }
+  .board table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+  }
+  .board th {
+    background: #065f46;
+    color: #d1fae5;
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+  }
+  .board td {
+    padding: 0.5rem;
+  }
+  .cell {
+    display: inline-block;
+    background: #10b981;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .cell:hover { transform: scale(1.05); }
+  .cell.checked {
+    background: #0a1950;
+    color: #a3c4ff;
+    box-shadow: inset 0 0 8px #1e3a8a;
+  }
+  #latest-number {
+    font-size: 4rem;
+    font-weight: 800;
+    margin: 1rem 0;
+    color: #6ee7b7;
+    text-shadow: 0 0 20px rgba(16,185,129,0.7);
+  }
+  #latest-number.pop {
+    transform: scale(1.2);
+    text-shadow: 0 0 40px rgba(16,185,129,1);
+  }
+  .btn {
+    background: #10b981;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    color: #fff;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: #34d399; transform: scale(1.05); }
+
+  /* 💎 Panel opsi futuristik */
+  #options-panel {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    width: 18rem;
+    backdrop-filter: blur(14px);
+    background: rgba(0,255,204,0.1);
+    border: 1px solid rgba(0,255,204,0.25);
+    border-radius: 1rem;
+    padding: 1rem;
+    display: none;
+    animation: slideDown 0.4s ease;
+    box-shadow: 0 0 25px rgba(0,255,204,0.3);
+    z-index: 100;
+  }
+  @keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  #options-panel select {
+    background: rgba(0,255,204,0.15);
+    border: 1px solid rgba(0,255,204,0.3);
+    color: #aafff4;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  #options-panel select:focus {
+    outline: none;
+    box-shadow: 0 0 10px #00ffa3;
+  }
+  #options-panel .btn {
+    background: linear-gradient(135deg, #00ffa3, #00e0ff);
+    color: #001f17;
+    box-shadow: 0 0 20px rgba(0,255,204,0.4);
+    transition: all 0.3s ease;
+  }
+  #options-panel .btn:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 30px rgba(0,255,204,0.8);
+  }
+  #btnTutup {
+    margin-top: 0.5rem;
+    background: rgba(255, 50, 50, 0.2);
+    color: #ffbaba;
+    border: 1px solid rgba(255, 50, 50, 0.4);
+    box-shadow: 0 0 12px rgba(255, 80, 80, 0.5);
+  }
+  #btnTutup:hover {
+    background: rgba(255, 70, 70, 0.4);
+    transform: scale(1.05);
+  }
+
+  .boards-container {
+    display: grid;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: start;
+    margin-top: 1rem;
+  }
+  @media (min-width: 768px) {
+    .boards-container {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+  }
+</style>
 </head>
-<body>
-  <div class="container">
-    <h1>Bingo Game 🎯</h1>
-    <div class="controls">
-      <button id="newGame">New Game</button>
-      <button id="drawNumber">Draw Number</button>
-      <button id="autoPlay">Auto Play</button>
-      <span id="info"></span>
-    </div>
+<body class="flex flex-col items-center p-4">
 
-    <div id="bingoCard" class="bingo-card"></div>
+<header class="w-full flex justify-between items-center mb-4">
+  <h1 class="text-xl font-bold text-emerald-300">🎯 Permainan ADIL — Pemain</h1>
+  <button id="btnOpsi" class="btn">⚙️ Opsi</button>
+</header>
 
-    <div class="drawn-numbers">
-      <h3>Drawn Numbers:</h3>
-      <div id="drawnList" class="drawn-list"></div>
-    </div>
-  </div>
+<div class="text-center">
+  <div class="text-emerald-200 text-sm">Angka Terbaru:</div>
+  <div id="latest-number">--</div>
+</div>
 
-  <script src="script.js"></script>
+<div id="boards-container" class="boards-container w-full max-w-7xl"></div>
+
+<!-- 💎 Panel opsi -->
+<div id="options-panel" class="text-center">
+  <label for="jumlah-papan" class="block text-emerald-100 mb-1">Tampilkan Berapa Papan:</label>
+  <select id="jumlah-papan" class="w-full mb-2">
+    <option value="1">1 papan</option>
+    <option value="2">2 papan</option>
+    <option value="3">3 papan</option>
+    <option value="4">4 papan</option>
+    <option value="5">5 papan</option>
+    <option value="6">6 papan</option>
+    <option value="7">7 papan</option>
+    <option value="8">8 papan</option>
+    <option value="9">9 papan</option>
+    <option value="10">10 papan</option>
+  </select>
+  <button id="btnGanti" class="btn w-full mb-2">🎲 GANTI SEMUA PAPAN</button>
+  <button id="btnReset" class="btn w-full mb-2">♻️ RESET CENTANG</button>
+  <label class="inline-flex items-center space-x-2 text-emerald-100">
+    <input id="autoCheck" type="checkbox" class="form-checkbox text-emerald-400">
+    <span>Centang Otomatis</span>
+  </label>
+  <button id="btnTutup" class="btn w-full mt-3">❌ Tutup</button>
+</div>
+
+<script>
+const dingSound = new Audio('./sounds/ding.mp3');
+dingSound.volume = 0.5;
+
+const HEADER = ['𝗔','𝗗','𝗜','𝗟'];
+const boardsContainer = document.getElementById('boards-container');
+const btnOpsi = document.getElementById('btnOpsi');
+const panel = document.getElementById('options-panel');
+const btnTutup = document.getElementById('btnTutup');
+
+btnOpsi.addEventListener('click', () => panel.style.display = 'block');
+btnTutup.addEventListener('click', () => panel.style.display = 'none');
+
+let boards = JSON.parse(localStorage.getItem('adil-boards')) || {};
+let jumlahPapan = Number(localStorage.getItem('adil-jumlah')) || 1;
+let checkedCells = JSON.parse(localStorage.getItem('adil-checked')) || {};
+
+// 🔢 Fungsi baru: membuat papan acak dengan kemungkinan angka ganda
+function generateBoard(num) {
+  const boardNums = [];
+  const baseNums = Array.from({length: 50}, (_, i) => i + 1);
+
+  // Tentukan berapa banyak angka yang akan digandakan (misal 2–4 angka)
+  const duplicateCount = Math.floor(Math.random() * 3) + 2;
+
+  // Pilih angka-angka unik dulu
+  while (boardNums.length < 16 - duplicateCount) {
+    const rand = baseNums[Math.floor(Math.random() * baseNums.length)];
+    if (!boardNums.includes(rand)) boardNums.push(rand);
+  }
+
+  // Pilih angka acak dari yang sudah ada untuk digandakan
+  for (let i = 0; i < duplicateCount; i++) {
+    const duplicate = boardNums[Math.floor(Math.random() * boardNums.length)];
+    boardNums.push(duplicate);
+  }
+
+  // Acak posisi semua angka
+  for (let i = boardNums.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [boardNums[i], boardNums[j]] = [boardNums[j], boardNums[i]];
+  }
+
+  boards[num] = boardNums;
+}
+
+if (Object.keys(boards).length < 10) {
+  for (let i = 1; i <= 10; i++) {
+    if (!boards[i]) generateBoard(i);
+  }
+  localStorage.setItem('adil-boards', JSON.stringify(boards));
+}
+
+function saveChecked() {
+  localStorage.setItem('adil-checked', JSON.stringify(checkedCells));
+}
+
+function renderBoards() {
+  boardsContainer.innerHTML = '';
+  for (let n = 1; n <= jumlahPapan; n++) {
+    const boardEl = document.createElement('div');
+    boardEl.className = 'board';
+    const title = document.createElement('div');
+    title.className = 'text-center text-emerald-200 font-semibold mb-1';
+    title.textContent = `Papan #${n}`;
+    boardEl.appendChild(title);
+
+    const table = document.createElement('table');
+    const headerRow = document.createElement('tr');
+    HEADER.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    const nums = boards[n];
+    for (let r = 0; r < 4; r++) {
+      const tr = document.createElement('tr');
+      for (let c = 0; c < 4; c++) {
+        const num = nums[r*4 + c];
+        const td = document.createElement('td');
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const key = `p${n}-${r}-${c}`;
+        if (checkedCells[key]) cell.classList.add('checked');
+        cell.textContent = num.toString().padStart(2, '0');
+        cell.addEventListener('click', () => {
+          cell.classList.toggle('checked');
+          checkedCells[key] = cell.classList.contains('checked');
+          saveChecked();
+        });
+        td.appendChild(cell);
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+    boardEl.appendChild(table);
+    boardsContainer.appendChild(boardEl);
+  }
+}
+
+document.getElementById('jumlah-papan').addEventListener('change', e => {
+  jumlahPapan = Number(e.target.value);
+  localStorage.setItem('adil-jumlah', jumlahPapan);
+  renderBoards();
+});
+
+document.getElementById('btnGanti').addEventListener('click', () => {
+  boards = {};
+  for (let i = 1; i <= 10; i++) generateBoard(i);
+  checkedCells = {};
+  localStorage.setItem('adil-boards', JSON.stringify(boards));
+  saveChecked();
+  renderBoards();
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  checkedCells = {};
+  saveChecked();
+  renderBoards();
+});
+
+function updateLatestNumber(huruf, angka) {
+  const el = document.getElementById('latest-number');
+  el.textContent = `${huruf}:${String(angka).padStart(2, '0')}`;
+  el.classList.add('pop');
+  dingSound.currentTime = 0;
+  dingSound.play();
+  setTimeout(() => el.classList.remove('pop'), 500);
+}
+
+window.addEventListener('storage', e => {
+  if (e.key === 'adil-last-huruf') {
+    const huruf = e.newValue;
+    const angka = Number(localStorage.getItem('adil-last'));
+    if (!isNaN(angka)) updateLatestNumber(huruf, angka);
+  }
+});
+
+renderBoards();
+</script>
 </body>
-</html>
+  </html>
