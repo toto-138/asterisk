@@ -151,7 +151,7 @@ let riwayat = JSON.parse(localStorage.getItem('adil-riwayat')) || { A:[], D:[], 
 const boardsContainer = document.getElementById('boards-container');
 const riwayatDiv = document.getElementById('riwayat');
 
-// 🔢 Fungsi baru: buat papan dengan duplikat tapi tidak di kolom sama
+// 🔢 Fungsi buat papan dengan duplikat tapi tak di kolom huruf sama
 function generateBoard(num) {
   const baseNums = Array.from({ length: 50 }, (_, i) => i + 1);
   const selected = [];
@@ -165,18 +165,14 @@ function generateBoard(num) {
     const dup = selected[Math.floor(Math.random() * selected.length)];
     duplicates.push(dup);
   }
-  const allNums = [...selected];
-  for (let dup of duplicates) {
-    allNums.push(dup);
-  }
+  const allNums = [...selected, ...duplicates];
 
-  // posisikan di grid 4x4 tanpa duplikat di kolom sama
+  // posisikan 4x4 tanpa duplikat di kolom sama
   const grid = Array(4).fill(null).map(() => Array(4).fill(null));
   const positions = [];
   for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) positions.push([r,c]);
   const shuffled = positions.sort(() => Math.random() - 0.5);
 
-  const placed = {};
   for (let n of allNums) {
     let placedOK = false;
     for (let pos of shuffled) {
@@ -203,10 +199,13 @@ function generateBoard(num) {
   boards[num] = grid.flat();
 }
 
-if (Object.keys(boards).length < 10) {
+function initBoards() {
+  boards = {};
   for (let i = 1; i <= 10; i++) generateBoard(i);
   localStorage.setItem('adil-boards', JSON.stringify(boards));
 }
+
+if (Object.keys(boards).length < 10) initBoards();
 
 function saveChecked() {
   localStorage.setItem('adil-checked', JSON.stringify(checkedCells));
@@ -298,19 +297,22 @@ window.addEventListener('storage', e => {
 
 document.getElementById('btnOpsi').onclick = () => document.getElementById('options-panel').style.display='block';
 document.getElementById('btnTutup').onclick = () => document.getElementById('options-panel').style.display='none';
+
 document.getElementById('jumlah-papan').onchange = e => {
   jumlahPapan = Number(e.target.value);
   localStorage.setItem('adil-jumlah', jumlahPapan);
   renderBoards();
 };
+
+// ✅ Tombol GANTI SEMUA PAPAN berfungsi penuh
 document.getElementById('btnGanti').onclick = () => {
-  boards = {};
-  for (let i = 1; i <= 10; i++) generateBoard(i);
   checkedCells = {};
-  localStorage.setItem('adil-boards', JSON.stringify(boards));
   saveChecked();
+  initBoards();
   renderBoards();
 };
+
+// Reset centang
 document.getElementById('btnReset').onclick = () => {
   checkedCells = {};
   saveChecked();
