@@ -70,7 +70,6 @@
   }
   .btn:hover { background: #34d399; transform: scale(1.05); }
 
-  /* 💎 Panel opsi futuristik */
   #options-panel {
     position: absolute;
     top: 90px;
@@ -90,56 +89,6 @@
     from { transform: translateY(-20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
   }
-
-  #options-panel select {
-    background: rgba(0,255,204,0.15);
-    border: 1px solid rgba(0,255,204,0.3);
-    color: #aafff4;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-    font-weight: 600;
-    width: 100%;
-    transition: all 0.3s ease;
-  }
-  #options-panel select:focus {
-    outline: none;
-    box-shadow: 0 0 10px #00ffa3;
-  }
-  #options-panel .btn {
-    background: linear-gradient(135deg, #00ffa3, #00e0ff);
-    color: #001f17;
-    box-shadow: 0 0 20px rgba(0,255,204,0.4);
-    transition: all 0.3s ease;
-  }
-  #options-panel .btn:hover {
-    transform: scale(1.07);
-    box-shadow: 0 0 30px rgba(0,255,204,0.8);
-  }
-  #btnTutup {
-    margin-top: 0.5rem;
-    background: rgba(255, 50, 50, 0.2);
-    color: #ffbaba;
-    border: 1px solid rgba(255, 50, 50, 0.4);
-    box-shadow: 0 0 12px rgba(255, 80, 80, 0.5);
-  }
-  #btnTutup:hover {
-    background: rgba(255, 70, 70, 0.4);
-    transform: scale(1.05);
-  }
-
-  .boards-container {
-    display: grid;
-    gap: 1.5rem;
-    justify-content: center;
-    align-items: start;
-    margin-top: 1rem;
-  }
-  @media (min-width: 768px) {
-    .boards-container {
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-  }
-
   #riwayat {
     text-align: left;
     font-family: monospace;
@@ -166,9 +115,8 @@
   <div id="latest-number">--</div>
 </div>
 
-<div id="boards-container" class="boards-container w-full max-w-7xl"></div>
+<div id="boards-container" class="grid gap-4 w-full max-w-6xl justify-center"></div>
 
-<!-- 💎 Panel opsi -->
 <div id="options-panel" class="text-center">
   <label for="jumlah-papan" class="block text-emerald-100 mb-1">Tampilkan Berapa Papan:</label>
   <select id="jumlah-papan" class="w-full mb-2">
@@ -185,56 +133,78 @@
   </select>
   <button id="btnGanti" class="btn w-full mb-2">🎲 GANTI SEMUA PAPAN</button>
   <button id="btnReset" class="btn w-full mb-2">♻️ RESET CENTANG</button>
-
   <div class="mt-2 text-left text-emerald-100 font-semibold">📜 Riwayat Angka Keluar</div>
   <div id="riwayat"></div>
-
-  <button id="btnTutup" class="btn w-full mt-3">❌ Tutup</button>
+  <button id="btnTutup" class="btn w-full mt-3 bg-red-600 hover:bg-red-700">❌ Tutup</button>
 </div>
 
 <script>
 const dingSound = new Audio('./sounds/ding.mp3');
 dingSound.volume = 0.5;
-
-const HEADER = ['𝗔','𝗗','𝗜','𝗟'];
-const boardsContainer = document.getElementById('boards-container');
-const btnOpsi = document.getElementById('btnOpsi');
-const panel = document.getElementById('options-panel');
-const btnTutup = document.getElementById('btnTutup');
-const riwayatDiv = document.getElementById('riwayat');
-
-btnOpsi.addEventListener('click', () => panel.style.display = 'block');
-btnTutup.addEventListener('click', () => panel.style.display = 'none');
+const HEADER = ['A','D','I','L'];
 
 let boards = JSON.parse(localStorage.getItem('adil-boards')) || {};
 let jumlahPapan = Number(localStorage.getItem('adil-jumlah')) || 1;
 let checkedCells = JSON.parse(localStorage.getItem('adil-checked')) || {};
 let riwayat = JSON.parse(localStorage.getItem('adil-riwayat')) || { A:[], D:[], I:[], L:[] };
 
-// 🔢 buat papan acak dengan angka ganda acak
+const boardsContainer = document.getElementById('boards-container');
+const riwayatDiv = document.getElementById('riwayat');
+
+// 🔢 Fungsi baru: buat papan dengan duplikat tapi tidak di kolom sama
 function generateBoard(num) {
-  const boardNums = [];
-  const baseNums = Array.from({length: 50}, (_, i) => i + 1);
+  const baseNums = Array.from({ length: 50 }, (_, i) => i + 1);
+  const selected = [];
+  while (selected.length < 12) {
+    const n = baseNums.splice(Math.floor(Math.random() * baseNums.length), 1)[0];
+    selected.push(n);
+  }
   const duplicateCount = Math.floor(Math.random() * 3) + 2;
-  while (boardNums.length < 16 - duplicateCount) {
-    const rand = baseNums[Math.floor(Math.random() * baseNums.length)];
-    if (!boardNums.includes(rand)) boardNums.push(rand);
-  }
+  const duplicates = [];
   for (let i = 0; i < duplicateCount; i++) {
-    const duplicate = boardNums[Math.floor(Math.random() * boardNums.length)];
-    boardNums.push(duplicate);
+    const dup = selected[Math.floor(Math.random() * selected.length)];
+    duplicates.push(dup);
   }
-  for (let i = boardNums.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [boardNums[i], boardNums[j]] = [boardNums[j], boardNums[i]];
+  const allNums = [...selected];
+  for (let dup of duplicates) {
+    allNums.push(dup);
   }
-  boards[num] = boardNums;
+
+  // posisikan di grid 4x4 tanpa duplikat di kolom sama
+  const grid = Array(4).fill(null).map(() => Array(4).fill(null));
+  const positions = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) positions.push([r,c]);
+  const shuffled = positions.sort(() => Math.random() - 0.5);
+
+  const placed = {};
+  for (let n of allNums) {
+    let placedOK = false;
+    for (let pos of shuffled) {
+      const [r, c] = pos;
+      if (!grid[r][c]) {
+        const sameColNums = grid.map(row => row[c]).filter(x => x !== null);
+        if (!sameColNums.includes(n)) {
+          grid[r][c] = n;
+          placedOK = true;
+          break;
+        }
+      }
+    }
+    if (!placedOK) {
+      for (let pos of shuffled) {
+        const [r, c] = pos;
+        if (!grid[r][c]) {
+          grid[r][c] = n;
+          break;
+        }
+      }
+    }
+  }
+  boards[num] = grid.flat();
 }
 
 if (Object.keys(boards).length < 10) {
-  for (let i = 1; i <= 10; i++) {
-    if (!boards[i]) generateBoard(i);
-  }
+  for (let i = 1; i <= 10; i++) generateBoard(i);
   localStorage.setItem('adil-boards', JSON.stringify(boards));
 }
 
@@ -263,78 +233,55 @@ function renderRiwayat() {
 function renderBoards() {
   boardsContainer.innerHTML = '';
   for (let n = 1; n <= jumlahPapan; n++) {
-    const boardEl = document.createElement('div');
-    boardEl.className = 'board';
+    const wrap = document.createElement('div');
+    wrap.className = 'board';
     const title = document.createElement('div');
-    title.className = 'text-center text-emerald-200 font-semibold mb-1';
     title.textContent = `Papan #${n}`;
-    boardEl.appendChild(title);
+    title.className = 'text-center text-emerald-200 font-semibold mb-1';
+    wrap.appendChild(title);
 
     const table = document.createElement('table');
-    const headerRow = document.createElement('tr');
+    const trH = document.createElement('tr');
     HEADER.forEach(h => {
       const th = document.createElement('th');
       th.textContent = h;
-      headerRow.appendChild(th);
+      trH.appendChild(th);
     });
-    table.appendChild(headerRow);
+    table.appendChild(trH);
 
     const nums = boards[n];
     for (let r = 0; r < 4; r++) {
       const tr = document.createElement('tr');
       for (let c = 0; c < 4; c++) {
-        const num = nums[r*4 + c];
+        const num = nums[r*4+c];
         const td = document.createElement('td');
-        const cell = document.createElement('div');
-        cell.className = 'cell';
+        const div = document.createElement('div');
+        div.className = 'cell';
+        div.textContent = num.toString().padStart(2,'0');
         const key = `p${n}-${r}-${c}`;
-        if (checkedCells[key]) cell.classList.add('checked');
-        cell.textContent = num.toString().padStart(2, '0');
-        cell.addEventListener('click', () => {
-          cell.classList.toggle('checked');
-          checkedCells[key] = cell.classList.contains('checked');
+        if (checkedCells[key]) div.classList.add('checked');
+        div.onclick = () => {
+          div.classList.toggle('checked');
+          checkedCells[key] = div.classList.contains('checked');
           saveChecked();
-        });
-        td.appendChild(cell);
+        };
+        td.appendChild(div);
         tr.appendChild(td);
       }
       table.appendChild(tr);
     }
-    boardEl.appendChild(table);
-    boardsContainer.appendChild(boardEl);
+    wrap.appendChild(table);
+    boardsContainer.appendChild(wrap);
   }
 }
 
-document.getElementById('jumlah-papan').addEventListener('change', e => {
-  jumlahPapan = Number(e.target.value);
-  localStorage.setItem('adil-jumlah', jumlahPapan);
-  renderBoards();
-});
-
-document.getElementById('btnGanti').addEventListener('click', () => {
-  boards = {};
-  for (let i = 1; i <= 10; i++) generateBoard(i);
-  checkedCells = {};
-  localStorage.setItem('adil-boards', JSON.stringify(boards));
-  saveChecked();
-  renderBoards();
-});
-
-document.getElementById('btnReset').addEventListener('click', () => {
-  checkedCells = {};
-  saveChecked();
-  renderBoards();
-});
-
 function updateLatestNumber(huruf, angka) {
   const el = document.getElementById('latest-number');
-  el.textContent = `${huruf}:${String(angka).padStart(2, '0')}`;
+  el.textContent = `${huruf}:${String(angka).padStart(2,'0')}`;
   el.classList.add('pop');
   dingSound.currentTime = 0;
   dingSound.play();
-  setTimeout(() => el.classList.remove('pop'), 500);
-
-  // simpan riwayat
+  setTimeout(()=>el.classList.remove('pop'),500);
   if (riwayat[huruf]) {
     riwayat[huruf].push(String(angka).padStart(2,'0'));
     saveRiwayat();
@@ -349,8 +296,29 @@ window.addEventListener('storage', e => {
   }
 });
 
+document.getElementById('btnOpsi').onclick = () => document.getElementById('options-panel').style.display='block';
+document.getElementById('btnTutup').onclick = () => document.getElementById('options-panel').style.display='none';
+document.getElementById('jumlah-papan').onchange = e => {
+  jumlahPapan = Number(e.target.value);
+  localStorage.setItem('adil-jumlah', jumlahPapan);
+  renderBoards();
+};
+document.getElementById('btnGanti').onclick = () => {
+  boards = {};
+  for (let i = 1; i <= 10; i++) generateBoard(i);
+  checkedCells = {};
+  localStorage.setItem('adil-boards', JSON.stringify(boards));
+  saveChecked();
+  renderBoards();
+};
+document.getElementById('btnReset').onclick = () => {
+  checkedCells = {};
+  saveChecked();
+  renderBoards();
+};
+
 renderBoards();
 renderRiwayat();
 </script>
 </body>
-  </html>
+</html>
