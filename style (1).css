@@ -1,0 +1,249 @@
+/* Pengaturan Dasar */
+body {
+    background-color: #0d0d0d;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+/* Penampung Form & Halaman Aplikasi */
+.form-container, #app-page {
+    width: 100%;
+    max-width: 450px;
+    box-sizing: border-box;
+}
+
+/* Efek Neon Utama */
+.neon-text {
+    color: #fff;
+    text-shadow:
+        0 0 7px #00e6e6, 0 0 10px #00e6e6, 0 0 21px #00e6e6,
+        0 0 42px #00e6e6, 0 0 82px #00e6e6;
+    text-align: center;
+}
+
+/* Penampung Form Login/Register */
+.form-container {
+    background-color: #1a1a1a;
+    margin-top: 50px;
+    padding: 30px;
+    border-radius: 10px;
+    border: 2px solid #00e6e6;
+    box-shadow: 0 0 15px #00e6e6;
+}
+
+form { display: flex; flex-direction: column; gap: 15px; }
+input, select, button { padding: 12px; border-radius: 5px; border: 1px solid #00e6e6; background-color: #222; color: #fff; font-size: 16px; }
+input::placeholder { color: #888; }
+button { background-color: #00e6e6; color: #111; font-weight: bold; cursor: pointer; text-shadow: none; transition: background-color 0.3s, box-shadow 0.3s; }
+button:hover { background-color: #fff; box-shadow: 0 0 10px #00e6e6; }
+
+/* Pengaturan Halaman (Register, Login, App) */
+.page { display: none; }
+.page.active { display: block; }
+.form-container p { text-align: center; font-size: 14px; }
+.form-container a { color: #00e6e6; text-decoration: none; font-weight: bold; }
+
+/* Gaya Form Pendaftaran */
+.bank-options-container { border: 1px solid #444; border-radius: 5px; padding: 10px; }
+.bank-options-container h4 { margin-top: 0; margin-bottom: 10px; text-align: center; color: #00e6e6; font-weight: normal; }
+.bank-options-list { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 10px; }
+.bank-option { display: flex; align-items: center; cursor: pointer; padding: 5px; border-radius: 4px; transition: background-color 0.2s; }
+.bank-option:hover { background-color: #333; }
+.bank-option input[type="radio"] { margin-right: 10px; }
+
+
+/* --- [GAYA FINAL] Halaman Aplikasi Utama --- */
+.app-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #1a1a1a;
+    border-bottom: 2px solid #00e6e6;
+    gap: 15px;
+}
+
+.header-left {
+    position: relative;
+    flex-shrink: 0;
+}
+.menu-button { background: none; border: 1px solid #00e6e6; color: #00e6e6; font-size: 24px; padding: 0px 8px; border-radius: 5px; cursor: pointer; }
+
+.user-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+}
+
+/* SPASI KE BAWAH (tampilan user dan saldo) */
+.user-info {
+    background-color: #252525;
+    border-radius: 6px;
+    padding: 8px 10px; /* Sedikit menambah padding agar tidak terlalu sempit */
+    display: flex;
+    flex-direction: column; /* Ini membuat item tersusun ke bawah */
+    align-items: flex-start; /* Ini membuat tulisan rata kiri */
+    border: 1px solid #444;
+    gap: 4px; /* Menambah sedikit jarak antara USERID dan Saldo */
+}
+
+.welcome-text {
+    font-size: 1em;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+.welcome-text strong {
+    color: #00e6e6;
+}
+
+.balance-info {
+    font-size: 0.9em;
+    color: #ccc;
+}
+.balance-info strong {
+    color: #fff;
+    font-weight: bold;
+}
+
+.header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+
+.header-nav-button, #logout-button {
+    padding: 8px 5px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid #00e6e6;
+    background-color: #333;
+    color: #00e6e6;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.header-nav-button:hover, #logout-button:hover {
+    background-color: #00e6e6;
+    color: #111;
+    box-shadow: 0 0 10px #00e6e6;
+}
+
+#logout-button {
+    border-color: #f44336;
+    color: #f44336;
+}
+
+#logout-button:hover {
+    background-color: #f44336;
+    color: #fff;
+    box-shadow: 0 0 10px #f44336;
+}
+
+/* Navigasi Utama */
+.app-nav { display: flex; background-color: #222; }
+.nav-button { flex-grow: 1; background: none; border: none; border-bottom: 3px solid transparent; padding: 15px; font-size: 16px; color: #fff; cursor: pointer; }
+.nav-button.active { border-bottom-color: #00e6e6; color: #00e6e6; }
+
+/* Konten Aplikasi */
+.app-content { padding: 20px; }
+.content-section { display: none; }
+.content-section.active { display: block; }
+.games-category { margin-bottom: 30px; }
+.games-category h3 { color: #fff; text-shadow: 0 0 5px #f0f; border-left: 4px solid #f0f; padding-left: 10px; margin-bottom: 15px; }
+.games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+.game-slot { border: 2px solid #f0f; box-shadow: 0 0 10px #f0f; border-radius: 8px; cursor: pointer; transition: transform 0.2s; overflow: hidden; aspect-ratio: 1 / 1; background-color: #222; }
+.game-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.game-slot:hover { transform: scale(1.05); }
+
+/* Form di dalam Aplikasi */
+.sub-form { background-color: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #444; }
+.deposit-info { background-color: #222; padding: 15px; border-radius: 5px; border-left: 4px solid #00e6e6; margin: 15px 0; }
+.deposit-info p { margin: 5px 0; }
+.deposit-info strong { color: #e0e0e0; }
+#withdraw-account-info span, #deposit-info-container span { color: #00e6e6; font-weight: bold; }
+
+/* Gaya Menu Dropdown */
+.dropdown-menu { display: none; position: absolute; top: 110%; left: 0; background-color: #f4f4f4; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 280px; z-index: 1000; padding: 15px; box-sizing: border-box; }
+.dropdown-menu.show { display: block; }
+.dropdown-menu a { text-decoration: none; }
+.menu-button-large { display: flex; align-items: center; padding: 12px; border-radius: 8px; color: white; font-weight: bold; margin-bottom: 10px; }
+.menu-button-large span { font-size: 20px; margin-right: 12px; }
+.menu-button-large.purple { background-color: #8A2BE2; }
+.menu-button-large.green { background-color: #28a745; }
+.menu-button-large.orange { background-color: #fd7e14; }
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+.menu-grid-item { background-color: #fff; color: #333; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px; border: 1px solid #ddd; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.menu-grid-item span { font-size: 24px; }
+.menu-grid-item.full-width { grid-column: 1 / -1; flex-direction: row; justify-content: center; }
+.menu-section { margin-top: 20px; }
+.menu-section-title { color: #555; font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; }
+.menu-promo-item { display: flex; align-items: center; color: #333; font-weight: bold; }
+.menu-promo-item span { font-size: 20px; margin-right: 10px; }
+
+/* Ikon Media Sosial */
+.social-links { display: flex; gap: 15px; align-items: center; }
+.social-icon { width: 40px; height: 40px; display: block; transition: transform 0.2s; }
+.social-icon:hover { transform: scale(1.1); }
+.social-icon img { width: 100%; height: 100%; }
+
+/* --- [BARU] Gaya untuk Modal Game Interaktif --- */
+.modal {
+    display: none; /* Sembunyi secara default */
+    position: fixed; /* Tetap di layar saat scroll */
+    z-index: 1001; /* Muncul di atas segalanya */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8); /* Latar belakang hitam transparan */
+    animation: fadeIn 0.3s; /* Animasi muncul */
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+.modal-content {
+    background-color: #1a1a1a;
+    margin: 40% auto; /* Jarak dari atas & tengah horizontal */
+    padding: 25px;
+    border: 2px solid #f0f; /* Border neon pink */
+    box-shadow: 0 0 20px #f0f;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.4s;
+}
+
+@keyframes slideIn {
+  from {transform: translateY(-50px); opacity: 0;}
+  to {transform: translateY(0); opacity: 1;}
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+              }
